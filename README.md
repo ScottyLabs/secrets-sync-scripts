@@ -1,7 +1,7 @@
 # Secrets Sync Scripts
 
 This directory contains scripts that are used to manage the project's secrets
-using [Vault](https://secrets.scottylabs.org/ui/vault/secrets/ScottyLabs/kv/list/).
+using [Vault](https://github.com/ScottyLabs/wiki/wiki/Credentials#hashicorp-vault).
 
 ## Usage
 
@@ -16,6 +16,17 @@ The scripts will sync with secrets stored in the vault path
 
 When there is only one application, the scripts will sync with secrets stored
 in the vault path `ScottyLabs/$PROJECT_SLUG/$ENV`, for every environment.
+
+### setup.sh
+
+Log into the Vault using the OIDC method. You have to run this script
+before pulling or pushing secrets, or you will get permission denied errors.
+Copy the link from the terminal and paste it in your browser if the link doesn't
+automatically open.
+
+```zsh
+./scripts/secrets-setup.sh
+```
 
 ### `pull.sh`
 
