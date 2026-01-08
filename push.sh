@@ -82,23 +82,55 @@ else
   fi
 fi
 
-# Push secrets to vault for every application and environment
+# Handle the case where there is no application and no environment
+if [ ${#APPLICATIONS[@]} -eq 0 ] && [ ${#ENVIRONMENT[@]} -eq 0 ]; then
+  vault_path="$VAULT_MOUNT/$PROJECT_SLUG"
+  echo -e "${BLUE_TEXT}Pushing to vault: $vault_path${RESET_TEXT}"
+  env_path=".env"
+  vault kv put -mount="$VAULT_MOUNT" "$vault_path" <$env_path
+fi
+
+# Handle the case where there is no application
+if [ ${#APPLICATIONS[@]} -eq 0 ]; then
+  for ENV in "${ENVIRONMENT[@]}"; do
+    vault_path="$VAULT_MOUNT/$PROJECT_SLUG/$ENV"
+    echo -e "${BLUE_TEXT}Pushing to vault: $vault_path${RESET_TEXT}"
+    env_path=".env.$ENV"
+    vault kv put -mount="$VAULT_MOUNT" "$vault_path" <$env_path
+  done
+fi
+
+# Handle the case where there is no environment
+if [ ${#ENVIRONMENT[@]} -eq 0 ]; then
+  for APP in "${APPLICATIONS[@]}"; do
+    vault_path="$VAULT_MOUNT/$PROJECT_SLUG/$APP"
+    env_path="apps/$APP/.env"
+    echo -e "${BLUE_TEXT}Pushing to vault: $vault_path${RESET_TEXT}"
+    vault kv put -mount="$VAULT_MOUNT" "$vault_path" <$env_path
+  done
+fi
+
+# Handle the case where there is no environment
+if [ ${#ENVIRONMENT[@]} -eq 0 ]; then
+  for APP in "${APPLICATIONS[@]}"; do
+    vault_path="$VAULT_MOUNT/$PROJECT_SLUG/$APP"
+    env_path="apps/$APP/.env"
+    echo -e "${BLUE_TEXT}Pushing to vault: $vault_path${RESET_TEXT}"
+    vault kv put -mount="$VAULT_MOUNT" "$vault_path" <$env_path
+  done
+fi
+
+# Handle the case where there is at least one application and one environment
 for APP in "${APPLICATIONS[@]}"; do
   echo -e "${BOLD_TEXT}==================================================${RESET_TEXT}"
   echo -e "${BOLD_TEXT}Pushing secrets for $APP${RESET_TEXT}"
   echo -e "${BOLD_TEXT}==================================================${RESET_TEXT}"
   for ENV in "${ENVIRONMENT[@]}"; do
     echo
-    echo -e "${BLUE_TEXT}Pushing to vault: $VAULT_MOUNT/$PROJECT_SLUG/$ENV/$APP${RESET_TEXT}"
-
-    # Calculate vault path
-    vault_path="$PROJECT_SLUG/$ENV/$APP"
-    if [ ${#APPLICATIONS[@]} -eq 1 ]; then
-      vault_path="$PROJECT_SLUG/$ENV"
-    fi
-
-    # Push secrets to vault
-    cat apps/$APP/.env.$ENV | xargs -r vault kv put -mount="$VAULT_MOUNT" "$vault_path"
+    vault_path="$VAULT_MOUNT/$PROJECT_SLUG/$ENV/$APP"
+    env_path="apps/$APP/.env.$ENV"
+    echo -e "${BLUE_TEXT}Pushing to vault: $vault_path${RESET_TEXT}"
+    cat $env_path | xargs -r vault kv put -mount="$VAULT_MOUNT" "$vault_path"
   done
   echo
 done

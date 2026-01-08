@@ -82,24 +82,49 @@ else
   fi
 fi
 
-# Pull secres from vault for every application and environment
+# Handle the case where there is no application and no environment
+if [ ${#APPLICATIONS[@]} -eq 0 ] && [ ${#ENVIRONMENT[@]} -eq 0 ]; then
+  vault_path="$VAULT_MOUNT/$PROJECT_SLUG"
+  env_path=".env"
+  echo -e "${BLUE_TEXT}Pulling from vault: $vault_path${RESET_TEXT}"
+  vault kv get -format=json $vault_path |
+    jq -r '.data.data | to_entries[] | "\(.key)=\"\(.value)\""' >$env_path
+fi
+
+# Handle the case where there is no application
+if [ ${#APPLICATIONS[@]} -eq 0 ]; then
+  for ENV in "${ENVIRONMENT[@]}"; do
+    vault_path="$VAULT_MOUNT/$PROJECT_SLUG/$ENV"
+    env_path=".env.$ENV"
+    echo -e "${BLUE_TEXT}Pulling from vault: $vault_path${RESET_TEXT}"
+    vault kv get -format=json $vault_path |
+      jq -r '.data.data | to_entries[] | "\(.key)=\"\(.value)\""' >$env_path
+  done
+fi
+
+# Handle the case where there is no environment
+if [ ${#ENVIRONMENT[@]} -eq 0 ]; then
+  for APP in "${APPLICATIONS[@]}"; do
+    vault_path="$VAULT_MOUNT/$PROJECT_SLUG/$APP"
+    env_path="apps/$APP/.env"
+    echo -e "${BLUE_TEXT}Pulling from vault: $vault_path${RESET_TEXT}"
+    vault kv get -format=json $vault_path |
+      jq -r '.data.data | to_entries[] | "\(.key)=\"\(.value)\""' >$env_path
+  done
+fi
+
+# Handle the case where there is at least one application and one environment
 for APP in "${APPLICATIONS[@]}"; do
   echo -e "${BOLD_TEXT}==================================================${RESET_TEXT}"
   echo -e "${BOLD_TEXT}Pulling secrets for $APP${RESET_TEXT}"
   echo -e "${BOLD_TEXT}==================================================${RESET_TEXT}"
   for ENV in "${ENVIRONMENT[@]}"; do
     echo
-    echo -e "${BLUE_TEXT}Pulling from vault: $VAULT_MOUNT/$PROJECT_SLUG/$ENV/$APP${RESET_TEXT}"
-
-    # Calculate vault path
     vault_path="$VAULT_MOUNT/$PROJECT_SLUG/$ENV/$APP"
-    if [ ${#APPLICATIONS[@]} -eq 1 ]; then
-      vault_path="$VAULT_MOUNT/$PROJECT_SLUG/$ENV"
-    fi
-
-    # Pull secrets from vault
+    env_path="apps/$APP/.env.$ENV"
+    echo -e "${BLUE_TEXT}Pulling from vault: $vault_path${RESET_TEXT}"
     vault kv get -format=json $vault_path |
-      jq -r '.data.data | to_entries[] | "\(.key)=\"\(.value)\""' >apps/$APP/.env.$ENV
+      jq -r '.data.data | to_entries[] | "\(.key)=\"\(.value)\""' >$env_path
   done
   echo
 done
