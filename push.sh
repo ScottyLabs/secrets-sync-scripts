@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
-source scripts/config.sh
+set -e
 
+# Load the configuration
+source scripts/secrets/config.sh
+
+# Check if the setup is completed
+if [ -z "$PROJECT_SLUG" ]; then
+  echo -e "${SETUP_NOT_COMPLETED_MESSAGE}" >&2
+  exit 1
+fi
+
+# Print usage
 usage() {
   echo
   echo -e "\tUsage: $0 APPLICATION ENVIRONMENT\n"
