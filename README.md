@@ -18,7 +18,7 @@ Copy the link from the terminal and paste it in your browser if the link doesn't
 automatically open.
 
 ```zsh
-./scripts/secrets-setup.sh
+./setup.sh
 ```
 
 ### `pull.sh`
@@ -27,7 +27,7 @@ Pulls the secrets from the Vault and saves them to the corresponding `.env` file
 Run the following command to see the usage:
 
 ```zsh
-./scripts/secrets-pull.sh -h
+./pull.sh -h
 ```
 
 ### `push.sh`
@@ -36,18 +36,18 @@ Pushes the secrets to the Vault from the corresponding `.env` file.
 Run the following command to see the usage:
 
 ```zsh
-./scripts/secrets-push.sh -h
+./push.sh -h
 ```
 
-## Configuration
+## Configuration Variables
 
-The PROJECT_SLUG is the team slug you defined in
+The PROJECT_SLUG (required) is the team slug you defined in
 [Governance](https://github.com/ScottyLabs/governance/tree/main/teams).
 
-The ALLOWED_APPS is a space-separated string of valid applications. Each
+The ALLOWED_APPS (optional) is a space-separated string of valid applications. Each
 application is a directory in the `apps` directory.
 
-The ALLOWED_ENVS is a space-separated string of valid environments.
+The ALLOWED_ENVS (optional) is a space-separated string of valid environments.
 Each environment will create a `.env.$ENV` file in the root directory.
 
 ## Syncing Behavior

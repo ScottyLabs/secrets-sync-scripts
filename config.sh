@@ -8,20 +8,25 @@ export BOLD_TEXT="\033[1m"
 export RESET_TEXT="\033[0m"
 
 # Convert space-separated strings to arrays
+unset ALLOWED_APPS_ARR ALLOWED_ENVS_ARR
 read -r -a ALLOWED_APPS_ARR <<<"$ALLOWED_APPS"
 read -r -a ALLOWED_ENVS_ARR <<<"$ALLOWED_ENVS"
 
 # Shared Usage Message Template
-usage_common() {
-  local script_name="$1"
-  local action="$2" # either "pull" or "push"
+usage() {
+  local script_name="$0"
+
+  # the action is the script name without the .sh extension (either "pull" or "push")
+  local action="$(basename "$script_name" .sh)"
 
   # Join the allowed apps and envs into a single string with ' | ' as a separator.
-  local allowed_apps_joined allowed_envs_joined
-  allowed_apps_joined=$(printf ' | %s' "${ALLOWED_APPS_ARR[@]}")
-  allowed_envs_joined=$(printf ' | %s' "${ALLOWED_ENVS_ARR[@]}")
-  allowed_apps_joined=${allowed_apps_joined:3} # remove leading ' | '
-  allowed_envs_joined=${allowed_envs_joined:3} # remove leading ' | '
+  local allowed_apps_joined="" allowed_envs_joined=""
+  if [ "${#ALLOWED_APPS_ARR[@]}" -gt 0 ]; then
+    allowed_apps_joined=$(printf '%s | ' "${ALLOWED_APPS_ARR[@]}")
+  fi
+  if [ "${#ALLOWED_ENVS_ARR[@]}" -gt 0 ]; then
+    allowed_envs_joined=$(printf '%s | ' "${ALLOWED_ENVS_ARR[@]}")
+  fi
 
   echo
   echo -e "${BOLD_TEXT}Usage:${RESET_TEXT}"
@@ -30,14 +35,14 @@ usage_common() {
   echo -e "${BOLD_TEXT}Description:${RESET_TEXT}"
   echo -e "  ${action} secrets between the local environment and Vault."
   echo
-  echo -e "${BOLD_TEXT}Requirements:${RESET_TEXT}"
-  echo -e "  - PROJECT_SLUG must be defined."
-  echo -e "  - ALLOWED_APPS must be defined (space-separated string of valid applications)."
-  echo -e "  - ALLOWED_ENVS must be defined (space-separated string of valid environments)."
+  echo -e "${BOLD_TEXT}Configuration Variables:${RESET_TEXT}"
+  echo -e "  - PROJECT_SLUG (required) - team slug defined in Governance, corresponds to the folder name in Vault."
+  echo -e "  - ALLOWED_APPS (optional) — space-separated string of valid applications."
+  echo -e "  - ALLOWED_ENVS (optional) — space-separated string of valid environments."
   echo
   echo -e "${BOLD_TEXT}Arguments:${RESET_TEXT}"
-  echo -e "  APP   The application to ${action}, one of: $allowed_apps_joined | all"
-  echo -e "  ENV   The environment to ${action}, one of: $allowed_envs_joined | all"
+  echo -e "  APP   The application to ${action}, one of: ${allowed_apps_joined}all"
+  echo -e "  ENV   The environment to ${action}, one of: ${allowed_envs_joined}all"
   echo
   echo -e "${BOLD_TEXT}Options:${RESET_TEXT}"
   echo -e "  -h, --help    Show this help message and exit"
@@ -46,12 +51,17 @@ usage_common() {
   echo -e "  PROJECT_SLUG=my-project ALLOWED_APPS='web server' ALLOWED_ENVS='dev staging prod' $script_name all prod"
 }
 
+# Show an error message and exit if the PROJECT_SLUG, ALLOWED_APPS, or ALLOWED_ENVS is not defined
+if [ -z "$PROJECT_SLUG" ]; then
+  echo -e "${RED_TEXT}Error: PROJECT_SLUG is not defined${RESET_TEXT}" >&2
+  usage >&2
+  exit 1
+fi
+
 # Helper function to validate the app/env input
 validate_input() {
-  local input="$1"  # the specific value provided by the user (e.g. "web")
-  local action="$2" # either "pull" or "push"
-  local type="$3"   # either "application" or "environment"
-  shift 3
+  local input="$1" # the specific value provided by the user
+  shift 1
   local allowed_list=("$@") # list of allowed options
   local result=()           # the validated result
 
@@ -70,10 +80,10 @@ validate_input() {
       fi
     done
 
-    # Show an error message and exit if the input is not valid
+    # Exit with an error code if the input is not valid
     if [ "$valid" == false ]; then
-      echo -e "${RED_TEXT}Error: Invalid $type '$input'.${RESET_TEXT}" >&2
-      usage_common "$0" "$action"
+      echo -e "${RED_TEXT}Error: Invalid input '$input'.${RESET_TEXT}" >&2
+      usage >&2
       exit 1
     fi
   fi
@@ -86,16 +96,13 @@ validate_input() {
 
 # Shared Argument Parsing and Validation
 parse_args() {
-  local script_name="$1"
-  local action="$2"
-  shift 2
   unset APP ENV
 
   # Read the arguments
   while [[ "$#" -gt 0 ]]; do
     # Show help message and exit if the user passes the -h or --help flag
     case "$1" in -h | --help)
-      usage_common "$script_name" "$action"
+      usage
       exit 0
       ;;
     esac
@@ -108,7 +115,7 @@ parse_args() {
       ENV="$1"
     else
       echo -e "${RED_TEXT}Error: Too many arguments provided${RESET_TEXT}" >&2
-      usage_common "$script_name" "$action"
+      usage >&2
       exit 1
     fi
 
@@ -118,13 +125,13 @@ parse_args() {
   # Show an error message and exit if the user does not provide an application or environment
   if [ -z "$APP" ]; then
     echo -e "${RED_TEXT}Error: Application is required${RESET_TEXT}" >&2
-    usage_common "$script_name" "$action"
+    usage >&2
     exit 1
   fi
 
   if [ -z "$ENV" ]; then
     echo -e "${RED_TEXT}Error: Environment is required${RESET_TEXT}" >&2
-    usage_common "$script_name" "$action"
+    usage >&2
     exit 1
   fi
 
@@ -132,10 +139,10 @@ parse_args() {
   APPS=()
   while IFS= read -r line; do
     APPS+=("$line")
-  done < <(validate_input "$APP" "$action" "application" "${ALLOWED_APPS_ARR[@]}")
+  done < <(validate_input "$APP" "${ALLOWED_APPS_ARR[@]}")
 
   ENVS=()
   while IFS= read -r line; do
     ENVS+=("$line")
-  done < <(validate_input "$ENV" "$action" "environment" "${ALLOWED_ENVS_ARR[@]}")
+  done < <(validate_input "$ENV" "${ALLOWED_ENVS_ARR[@]}")
 }

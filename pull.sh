@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -e
 
-# Load the configuration
+# Load configuration
 source ./config.sh
 
 # Parse arguments
-parse_args "$0" "pull" "$@"
+parse_args "$@"
 
 # Handle the case where there is no application and no environment
 if [ ${#APPS[@]} -eq 0 ] && [ ${#ENVS[@]} -eq 0 ]; then
