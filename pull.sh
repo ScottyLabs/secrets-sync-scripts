@@ -45,7 +45,7 @@ done
 # Sanitize the Application argument
 if [ "$APPLICATION" == "all" ]; then
   APPLICATIONS=("${APPLICATIONS_OPTIONS[@]}")
-else
+elif [ ${#APPLICATIONS[@]} -ne 0 ]; then
   valid=false
   for opt in "${APPLICATIONS_OPTIONS[@]}"; do
     if [ "$APPLICATION" == "$opt" ]; then
@@ -65,7 +65,7 @@ fi
 # Sanitize the Environment argument
 if [ "$ENVIRONMENT" == "all" ]; then
   ENVIRONMENT=("${ENVIRONMENTS_OPTIONS[@]}")
-else
+elif [ ${#ENVIRONMENT[@]} -ne 0 ]; then
   valid=false
   for opt in "${ENVIRONMENTS_OPTIONS[@]}"; do
     if [ "$ENVIRONMENT" == "$opt" ]; then

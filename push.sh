@@ -45,7 +45,7 @@ done
 # Sanitize the Application argument
 if [ "$APPLICATION" == "all" ]; then
   APPLICATIONS=("${APPLICATIONS_OPTIONS[@]}")
-else
+elif [ ${#APPLICATIONS[@]} -ne 0 ]; then
   valid=false
   for opt in "${APPLICATIONS_OPTIONS[@]}"; do
     if [ "$APPLICATION" == "$opt" ]; then
@@ -65,7 +65,7 @@ fi
 # Sanitize the Environment argument
 if [ "$ENVIRONMENT" == "all" ]; then
   ENVIRONMENT=("${ENVIRONMENTS_OPTIONS[@]}")
-else
+elif [ ${#ENVIRONMENT[@]} -ne 0 ]; then
   valid=false
   for opt in "${ENVIRONMENTS_OPTIONS[@]}"; do
     if [ "$ENVIRONMENT" == "$opt" ]; then
@@ -84,39 +84,29 @@ fi
 
 # Handle the case where there is no application and no environment
 if [ ${#APPLICATIONS[@]} -eq 0 ] && [ ${#ENVIRONMENT[@]} -eq 0 ]; then
-  vault_path="$VAULT_MOUNT/$PROJECT_SLUG"
+  vault_path="$PROJECT_SLUG"
   echo -e "${BLUE_TEXT}Pushing to vault: $vault_path${RESET_TEXT}"
   env_path=".env"
-  vault kv put -mount="$VAULT_MOUNT" "$vault_path" <$env_path
+  cat $env_path | xargs -r vault kv put -mount="$VAULT_MOUNT" "$vault_path"
 fi
 
 # Handle the case where there is no application
 if [ ${#APPLICATIONS[@]} -eq 0 ]; then
   for ENV in "${ENVIRONMENT[@]}"; do
-    vault_path="$VAULT_MOUNT/$PROJECT_SLUG/$ENV"
+    vault_path="$PROJECT_SLUG/$ENV"
     echo -e "${BLUE_TEXT}Pushing to vault: $vault_path${RESET_TEXT}"
     env_path=".env.$ENV"
-    vault kv put -mount="$VAULT_MOUNT" "$vault_path" <$env_path
+    cat $env_path | xargs -r vault kv put -mount="$VAULT_MOUNT" "$vault_path"
   done
 fi
 
 # Handle the case where there is no environment
 if [ ${#ENVIRONMENT[@]} -eq 0 ]; then
   for APP in "${APPLICATIONS[@]}"; do
-    vault_path="$VAULT_MOUNT/$PROJECT_SLUG/$APP"
+    vault_path="$PROJECT_SLUG/$APP"
     env_path="apps/$APP/.env"
     echo -e "${BLUE_TEXT}Pushing to vault: $vault_path${RESET_TEXT}"
-    vault kv put -mount="$VAULT_MOUNT" "$vault_path" <$env_path
-  done
-fi
-
-# Handle the case where there is no environment
-if [ ${#ENVIRONMENT[@]} -eq 0 ]; then
-  for APP in "${APPLICATIONS[@]}"; do
-    vault_path="$VAULT_MOUNT/$PROJECT_SLUG/$APP"
-    env_path="apps/$APP/.env"
-    echo -e "${BLUE_TEXT}Pushing to vault: $vault_path${RESET_TEXT}"
-    vault kv put -mount="$VAULT_MOUNT" "$vault_path" <$env_path
+    cat $env_path | xargs -r vault kv put -mount="$VAULT_MOUNT" "$vault_path"
   done
 fi
 
@@ -127,7 +117,7 @@ for APP in "${APPLICATIONS[@]}"; do
   echo -e "${BOLD_TEXT}==================================================${RESET_TEXT}"
   for ENV in "${ENVIRONMENT[@]}"; do
     echo
-    vault_path="$VAULT_MOUNT/$PROJECT_SLUG/$ENV/$APP"
+    vault_path="$PROJECT_SLUG/$ENV/$APP"
     env_path="apps/$APP/.env.$ENV"
     echo -e "${BLUE_TEXT}Pushing to vault: $vault_path${RESET_TEXT}"
     cat $env_path | xargs -r vault kv put -mount="$VAULT_MOUNT" "$vault_path"
