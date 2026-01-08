@@ -11,11 +11,18 @@ This script contains the configuration used by the other scripts.
 The project slug is what you defined in
 [Governance](https://github.com/ScottyLabs/governance/tree/main/teams).
 
-The scripts will sync with secrets stored in the vault path
+When there is at least one application and one environment, the scripts
+sync local secrets from `apps/$APP/.env.$ENV` to the vault path
 `ScottyLabs/$PROJECT_SLUG/$ENV/$APP`, for every application and environment.
 
-When there is only one application, the scripts will sync with secrets stored
-in the vault path `ScottyLabs/$PROJECT_SLUG/$ENV`, for every environment.
+When there is no application, the scripts sync local secrets from `.env.$ENV`
+to the vault path `ScottyLabs/$PROJECT_SLUG/$ENV`, for every environment.
+
+When there is no environment, the scripts sync local secrets from `apps/$APP/.env`
+to the in the vault path `ScottyLabs/$PROJECT_SLUG/$APP`, for every application.
+
+When there is no application and no environment, the scripts sync local secrets
+from `.env` to the vault path `ScottyLabs/$PROJECT_SLUG`.
 
 ### setup.sh
 
