@@ -5,9 +5,9 @@ using [Vault](https://github.com/ScottyLabs/wiki/wiki/Credentials#hashicorp-vaul
 
 ## Usage
 
-### `config.sh`
+### `common.sh`
 
-This script contains the shared variables and functions used by the other scripts,
+This script contains the common variables and functions used by the other scripts,
 including the argument parsing and validation logic.
 
 ### `setup.sh`

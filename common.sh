@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+set -e
+
+# Set common variables
 export VAULT_ADDR=https://secrets.scottylabs.org
 export VAULT_MOUNT=ScottyLabs
 
