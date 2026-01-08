@@ -2,88 +2,13 @@
 set -e
 
 # Load the configuration
-source scripts/secrets/config.sh
-
-# Check if the setup is completed
-if [ -z "$PROJECT_SLUG" ]; then
-  echo -e "${SETUP_NOT_COMPLETED_MESSAGE}" >&2
-  exit 1
-fi
-
-# Print usage
-usage() {
-  echo
-  echo -e "\tUsage: $0 APPLICATION ENVIRONMENT\n"
-  echo -e "\t\tAPPLICATION: The application to push to, one of $APPLICATIONS_OPTIONS_JOINED | all\n"
-  echo -e "\t\tENVIRONMENT: The environment to push to, one of $ENVIRONMENTS_OPTIONS_JOINED | all\n"
-  echo -e "\tOptions:"
-  echo -e "\t\t-h, --help    Show this help message and exit\n"
-}
+source ./config.sh
 
 # Parse arguments
-while [[ "$#" -gt 0 ]]; do
-  case "$1" in
-  -h | --help)
-    usage
-    exit 0
-    ;;
-  *)
-    if [[ -z "$APPLICATION" ]]; then
-      APPLICATION="$1"
-    elif [[ -z "$ENVIRONMENT" ]]; then
-      ENVIRONMENT="$1"
-    else
-      echo "Error: Too many arguments provided: '$1'" >&2
-      usage
-      exit 1
-    fi
-    ;;
-  esac
-  shift
-done
-
-# Sanitize the Application argument
-if [ "$APPLICATION" == "all" ]; then
-  APPLICATIONS=("${APPLICATIONS_OPTIONS[@]}")
-elif [ ${#APPLICATIONS[@]} -ne 0 ]; then
-  valid=false
-  for opt in "${APPLICATIONS_OPTIONS[@]}"; do
-    if [ "$APPLICATION" == "$opt" ]; then
-      APPLICATIONS=("$APPLICATION")
-      valid=true
-      break
-    fi
-  done
-
-  if [ "$valid" == false ]; then
-    echo "Error: Invalid application: '$APPLICATION'" >&2
-    usage
-    exit 1
-  fi
-fi
-
-# Sanitize the Environment argument
-if [ "$ENVIRONMENT" == "all" ]; then
-  ENVIRONMENT=("${ENVIRONMENTS_OPTIONS[@]}")
-elif [ ${#ENVIRONMENT[@]} -ne 0 ]; then
-  valid=false
-  for opt in "${ENVIRONMENTS_OPTIONS[@]}"; do
-    if [ "$ENVIRONMENT" == "$opt" ]; then
-      ENVIRONMENT=("$ENVIRONMENT")
-      valid=true
-      break
-    fi
-  done
-
-  if [ "$valid" == false ]; then
-    echo "Error: Invalid environment: '$ENVIRONMENT'" >&2
-    usage
-    exit 1
-  fi
-fi
+parse_args "$0" "push" "$@"
 
 # Handle the case where there is no application and no environment
-if [ ${#APPLICATIONS[@]} -eq 0 ] && [ ${#ENVIRONMENT[@]} -eq 0 ]; then
+if [ ${#APPS[@]} -eq 0 ] && [ ${#ENVS[@]} -eq 0 ]; then
   vault_path="$PROJECT_SLUG"
   echo -e "${BLUE_TEXT}Pushing to vault: $vault_path${RESET_TEXT}"
   env_path=".env"
@@ -91,8 +16,8 @@ if [ ${#APPLICATIONS[@]} -eq 0 ] && [ ${#ENVIRONMENT[@]} -eq 0 ]; then
 fi
 
 # Handle the case where there is no application
-if [ ${#APPLICATIONS[@]} -eq 0 ]; then
-  for ENV in "${ENVIRONMENT[@]}"; do
+if [ ${#APPS[@]} -eq 0 ]; then
+  for ENV in "${ENVS[@]}"; do
     vault_path="$PROJECT_SLUG/$ENV"
     echo -e "${BLUE_TEXT}Pushing to vault: $vault_path${RESET_TEXT}"
     env_path=".env.$ENV"
@@ -101,8 +26,8 @@ if [ ${#APPLICATIONS[@]} -eq 0 ]; then
 fi
 
 # Handle the case where there is no environment
-if [ ${#ENVIRONMENT[@]} -eq 0 ]; then
-  for APP in "${APPLICATIONS[@]}"; do
+if [ ${#ENVS[@]} -eq 0 ]; then
+  for APP in "${APPS[@]}"; do
     vault_path="$PROJECT_SLUG/$APP"
     env_path="apps/$APP/.env"
     echo -e "${BLUE_TEXT}Pushing to vault: $vault_path${RESET_TEXT}"
@@ -111,11 +36,11 @@ if [ ${#ENVIRONMENT[@]} -eq 0 ]; then
 fi
 
 # Handle the case where there is at least one application and one environment
-for APP in "${APPLICATIONS[@]}"; do
+for APP in "${APPS[@]}"; do
   echo -e "${BOLD_TEXT}==================================================${RESET_TEXT}"
   echo -e "${BOLD_TEXT}Pushing secrets for $APP${RESET_TEXT}"
   echo -e "${BOLD_TEXT}==================================================${RESET_TEXT}"
-  for ENV in "${ENVIRONMENT[@]}"; do
+  for ENV in "${ENVS[@]}"; do
     echo
     vault_path="$PROJECT_SLUG/$ENV/$APP"
     env_path="apps/$APP/.env.$ENV"
