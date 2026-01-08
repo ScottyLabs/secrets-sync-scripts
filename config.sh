@@ -1,7 +1,7 @@
 # DEFINE PROJECT SPECIFIC CONFIGURATIONS HERE
-export PROJECT_SLUG="governance"
-export APPLICATIONS_OPTIONS=()
-export ENVIRONMENTS_OPTIONS=()
+export PROJECT_SLUG=""
+export APPLICATIONS_OPTIONS=("web" "server")
+export ENVIRONMENTS_OPTIONS=("local" "dev" "staging" "prod")
 
 # DON'T EDIT BELOW THIS LINE
 export VAULT_ADDR=https://secrets.scottylabs.org
