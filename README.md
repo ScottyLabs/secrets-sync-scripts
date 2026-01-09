@@ -41,29 +41,29 @@ Run the following command to see the usage:
 
 ## Configuration Variables
 
-The PROJECT_SLUG (required) is the team slug you defined in
+The PROJECT (required) is the team slug you defined in
 [Governance](https://github.com/ScottyLabs/governance/tree/main/teams).
 
-The ALLOWED_APPS (optional) is a space-separated string of valid applications. Each
+The APPS (optional) is a space-separated string of valid applications. Each
 application is a directory in the `apps` directory.
 
-The ALLOWED_ENVS (optional) is a space-separated string of valid environments.
+The ENVS (optional) is a space-separated string of valid environments.
 Each environment will create a `.env.$ENV` file in the root directory.
 
 ## Syncing Behavior
 
 When there is at least one application and one environment, the scripts
 sync local secrets from `apps/$APP/.env.$ENV` to the vault path
-`ScottyLabs/$PROJECT_SLUG/$ENV/$APP`, for every application and environment.
+`ScottyLabs/$PROJECT/$ENV/$APP`, for every application and environment.
 
 When there is no application, the scripts sync local secrets from `.env.$ENV`
-to the vault path `ScottyLabs/$PROJECT_SLUG/$ENV`, for every environment.
+to the vault path `ScottyLabs/$PROJECT/$ENV`, for every environment.
 
 When there is no environment, the scripts sync local secrets from `apps/$APP/.env`
-to the in the vault path `ScottyLabs/$PROJECT_SLUG/$APP`, for every application.
+to the in the vault path `ScottyLabs/$PROJECT/$APP`, for every application.
 
 When there is no application and no environment, the scripts sync local secrets
-from `.env` to the vault path `ScottyLabs/$PROJECT_SLUG`.
+from `.env` to the vault path `ScottyLabs/$PROJECT`.
 This script contains the configuration and helper functions used by the other scripts,
 including argument parsing and validation.
 

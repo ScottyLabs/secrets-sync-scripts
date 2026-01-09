@@ -140,16 +140,21 @@ parse_args() {
     exit 1
   fi
 
-  # Validate the input and store the results in the APPS and ENVS arrays
   # These two arrays now contain the validated applications and environments
   # instead of the allowed applications and environments to be used in other scripts.
-  APPS=()
+  APPS=() ENVS=()
+
+  # Validate the input and store the results in the APPS and ENVS arrays
+  # Need to run and store the output in a variable so the script can exit
+  # if the input is not valid.
+  apps_output=$(validate_input "$APP" "${ALLOWED_APPS_ARR[@]}")
+  envs_output=$(validate_input "$ENV" "${ALLOWED_ENVS_ARR[@]}")
+
   while IFS= read -r line; do
     APPS+=("$line")
-  done < <(validate_input "$APP" "${ALLOWED_APPS_ARR[@]}")
+  done < <(apps_output)
 
-  ENVS=()
   while IFS= read -r line; do
     ENVS+=("$line")
-  done < <(validate_input "$ENV" "${ALLOWED_ENVS_ARR[@]}")
+  done < <(envs_output)
 }
