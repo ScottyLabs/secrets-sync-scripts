@@ -14,8 +14,8 @@ export APPLICANTS_ENV_NAME="applicants"
 
 # Convert space-separated strings to arrays
 unset ALLOWED_APPS_ARR ALLOWED_ENVS_ARR
-read -r -a ALLOWED_APPS_ARR <<<"$ALLOWED_APPS"
-read -r -a ALLOWED_ENVS_ARR <<<"$ALLOWED_ENVS"
+read -r -a ALLOWED_APPS_ARR <<<"$APPS"
+read -r -a ALLOWED_ENVS_ARR <<<"$ENVS"
 
 # Shared Usage Message Template
 usage() {
@@ -41,9 +41,9 @@ usage() {
   echo -e "  ${action} secrets between the local environment and Vault."
   echo
   echo -e "${BOLD_TEXT}Configuration Variables:${RESET_TEXT}"
-  echo -e "  - PROJECT_SLUG (required) - team slug defined in Governance, corresponds to the folder name in Vault."
-  echo -e "  - ALLOWED_APPS (optional) — space-separated string of valid applications."
-  echo -e "  - ALLOWED_ENVS (optional) — space-separated string of valid environments."
+  echo -e "  - PROJECT (required) - team slug defined in Governance, corresponds to the folder name in Vault."
+  echo -e "  - APPS (optional) — space-separated string of valid applications."
+  echo -e "  - ENVS (optional) — space-separated string of valid environments."
   echo
   echo -e "${BOLD_TEXT}Arguments:${RESET_TEXT}"
   echo -e "  APP   The application to ${action}, one of: ${allowed_apps_joined}all"
@@ -53,12 +53,12 @@ usage() {
   echo -e "  -h, --help    Show this help message and exit"
   echo
   echo -e "${BOLD_TEXT}Example Usage:${RESET_TEXT}"
-  echo -e "  PROJECT_SLUG=my-project ALLOWED_APPS='web server' ALLOWED_ENVS='dev staging prod' $script_name all prod"
+  echo -e "  PROJECT=my-project APPS='web server' ENVS='dev staging prod' $script_name all prod"
 }
 
-# Show an error message and exit if the PROJECT_SLUG, ALLOWED_APPS, or ALLOWED_ENVS is not defined
-if [ -z "$PROJECT_SLUG" ]; then
-  echo -e "${RED_TEXT}Error: PROJECT_SLUG is not defined${RESET_TEXT}" >&2
+# Show an error message and exit if the PROJECT is not defined
+if [ -z "$PROJECT" ]; then
+  echo -e "${RED_TEXT}Error: PROJECT is not defined${RESET_TEXT}" >&2
   usage >&2
   exit 1
 fi
@@ -141,6 +141,8 @@ parse_args() {
   fi
 
   # Validate the input and store the results in the APPS and ENVS arrays
+  # These two arrays now contain the validated applications and environments
+  # instead of the allowed applications and environments to be used in other scripts.
   APPS=()
   while IFS= read -r line; do
     APPS+=("$line")
