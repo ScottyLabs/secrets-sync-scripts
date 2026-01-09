@@ -10,6 +10,8 @@ export BLUE_TEXT="\033[34m"
 export BOLD_TEXT="\033[1m"
 export RESET_TEXT="\033[0m"
 
+export APPLICANTS_ENV_NAME="applicants"
+
 # Convert space-separated strings to arrays
 unset ALLOWED_APPS_ARR ALLOWED_ENVS_ARR
 read -r -a ALLOWED_APPS_ARR <<<"$ALLOWED_APPS"

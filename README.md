@@ -66,3 +66,6 @@ When there is no application and no environment, the scripts sync local secrets
 from `.env` to the vault path `ScottyLabs/$PROJECT_SLUG`.
 This script contains the configuration and helper functions used by the other scripts,
 including argument parsing and validation.
+
+**Exception**: when the `ENV` is `applicants`, the local secrets file name will be
+`.env` instead of `.env.applicant`.

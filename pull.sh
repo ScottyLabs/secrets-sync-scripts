@@ -20,7 +20,12 @@ fi
 if [ ${#APPS[@]} -eq 0 ]; then
   for ENV in "${ENVS[@]}"; do
     vault_path="$VAULT_MOUNT/$PROJECT_SLUG/$ENV"
+
     env_path=".env.$ENV"
+    if [ "$ENV" == $APPLICANTS_ENV_NAME ]; then
+      env_path=".env"
+    fi
+
     echo -e "${BLUE_TEXT}Pulling from vault: $vault_path${RESET_TEXT}"
     vault kv get -format=json $vault_path |
       jq -r '.data.data | to_entries[] | "\(.key)=\"\(.value)\""' >$env_path
@@ -47,6 +52,9 @@ for APP in "${APPS[@]}"; do
     echo
     vault_path="$VAULT_MOUNT/$PROJECT_SLUG/$ENV/$APP"
     env_path="apps/$APP/.env.$ENV"
+    if [ "$ENV" == $APPLICANTS_ENV_NAME ]; then
+      env_path="apps/$APP/.env"
+    fi
     echo -e "${BLUE_TEXT}Pulling from vault: $vault_path${RESET_TEXT}"
     vault kv get -format=json $vault_path |
       jq -r '.data.data | to_entries[] | "\(.key)=\"\(.value)\""' >$env_path
