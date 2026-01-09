@@ -152,9 +152,9 @@ parse_args() {
 
   while IFS= read -r line; do
     APPS+=("$line")
-  done < <(apps_output)
+  done <<<"$apps_output"
 
   while IFS= read -r line; do
     ENVS+=("$line")
-  done < <(envs_output)
+  done <<<"$envs_output"
 }
