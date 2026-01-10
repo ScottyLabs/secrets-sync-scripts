@@ -150,11 +150,15 @@ parse_args() {
   apps_output=$(validate_input "$APP" "${ALLOWED_APPS_ARR[@]}")
   envs_output=$(validate_input "$ENV" "${ALLOWED_ENVS_ARR[@]}")
 
-  while IFS= read -r line; do
-    APPS+=("$line")
-  done <<<"$apps_output"
+  if [ -n "$apps_output" ]; then
+    while IFS= read -r line; do
+      APPS+=("$line")
+    done <<<"$apps_output"
+  fi
 
-  while IFS= read -r line; do
-    ENVS+=("$line")
-  done <<<"$envs_output"
+  if [ -n "$envs_output" ]; then
+    while IFS= read -r line; do
+      ENVS+=("$line")
+    done <<<"$envs_output"
+  fi
 }

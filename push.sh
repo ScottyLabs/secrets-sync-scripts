@@ -13,6 +13,7 @@ if [ ${#APPS[@]} -eq 0 ] && [ ${#ENVS[@]} -eq 0 ]; then
   echo -e "${BLUE_TEXT}Pushing to vault: $vault_path${RESET_TEXT}"
   env_path=".env"
   cat $env_path | xargs -r vault kv put -mount="$VAULT_MOUNT" "$vault_path"
+  exit 0
 fi
 
 # Handle the case where there is no application
@@ -26,6 +27,7 @@ if [ ${#APPS[@]} -eq 0 ]; then
     echo -e "${BLUE_TEXT}Pushing to vault: $vault_path${RESET_TEXT}"
     cat $env_path | xargs -r vault kv put -mount="$VAULT_MOUNT" "$vault_path"
   done
+  exit 0
 fi
 
 # Handle the case where there is no environment
@@ -36,6 +38,7 @@ if [ ${#ENVS[@]} -eq 0 ]; then
     echo -e "${BLUE_TEXT}Pushing to vault: $vault_path${RESET_TEXT}"
     cat $env_path | xargs -r vault kv put -mount="$VAULT_MOUNT" "$vault_path"
   done
+  exit 0
 fi
 
 # Handle the case where there is at least one application and one environment

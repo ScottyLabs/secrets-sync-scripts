@@ -14,6 +14,7 @@ if [ ${#APPS[@]} -eq 0 ] && [ ${#ENVS[@]} -eq 0 ]; then
   echo -e "${BLUE_TEXT}Pulling from vault: $vault_path${RESET_TEXT}"
   vault kv get -format=json $vault_path |
     jq -r '.data.data | to_entries[] | "\(.key)=\"\(.value)\""' >$env_path
+  exit 0
 fi
 
 # Handle the case where there is no application
@@ -30,6 +31,7 @@ if [ ${#APPS[@]} -eq 0 ]; then
     vault kv get -format=json $vault_path |
       jq -r '.data.data | to_entries[] | "\(.key)=\"\(.value)\""' >$env_path
   done
+  exit 0
 fi
 
 # Handle the case where there is no environment
@@ -41,6 +43,7 @@ if [ ${#ENVS[@]} -eq 0 ]; then
     vault kv get -format=json $vault_path |
       jq -r '.data.data | to_entries[] | "\(.key)=\"\(.value)\""' >$env_path
   done
+  exit 0
 fi
 
 # Handle the case where there is at least one application and one environment
