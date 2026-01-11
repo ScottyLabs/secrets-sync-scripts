@@ -1,9 +1,15 @@
+#!/usr/bin/env bash
+set -e
+
+# Load common variables
+source "$(dirname "$0")/../common/constants.sh"
+
 # Convert space-separated strings to arrays
 unset ALLOWED_APPS_ARR ALLOWED_ENVS_ARR
 read -r -a ALLOWED_APPS_ARR <<<"$APPS"
 read -r -a ALLOWED_ENVS_ARR <<<"$ENVS"
 
-# Shared Usage Message Template
+# Usage message
 usage() {
   local script_name="$0"
 
@@ -24,8 +30,13 @@ usage() {
   echo -e "  $script_name APP ENV"
   echo
   echo -e "${BOLD_TEXT}Description:${RESET_TEXT}"
-  echo -e "  ${action} secrets between the local environment and Vault."
-  echo
+
+  if [ "$action" == "pull" ]; then
+    echo -e "  ${action} secrets from Vault to the local environment."
+  else
+    echo -e "  ${action} secrets from the local environment to Vault."
+  fi
+
   echo -e "${BOLD_TEXT}Configuration Variables:${RESET_TEXT}"
   echo -e "  - PROJECT (required) - team slug defined in Governance, corresponds to the folder name in Vault."
   echo -e "  - APPS (optional) — space-separated string of valid applications."
