@@ -8,7 +8,7 @@ action=$(basename "$0" .sh)
 
 # Handle the case where there is no application and no environment
 if [ ${#APPS[@]} -eq 0 ] && [ ${#ENVS[@]} -eq 0 ]; then
-  vault_path="$VAULT_MOUNT/$PROJECT"
+  vault_path="$PROJECT"
   env_path=".env"
   "$action" "$vault_path" "$env_path"
   exit 0
@@ -17,7 +17,7 @@ fi
 # Handle the case where there is no application
 if [ ${#APPS[@]} -eq 0 ]; then
   for ENV in "${ENVS[@]}"; do
-    vault_path="$VAULT_MOUNT/$PROJECT/$ENV"
+    vault_path="$PROJECT/$ENV"
 
     env_path=".env.$ENV"
     if [ "$ENV" == $APPLICANTS_ENV_NAME ]; then
@@ -32,7 +32,7 @@ fi
 # Handle the case where there is no environment
 if [ ${#ENVS[@]} -eq 0 ]; then
   for APP in "${APPS[@]}"; do
-    vault_path="$VAULT_MOUNT/$PROJECT/$APP"
+    vault_path="$PROJECT/$APP"
     env_path="apps/$APP/.env"
     "$action" "$env_path" "$vault_path"
   done
@@ -46,7 +46,7 @@ for APP in "${APPS[@]}"; do
   echo -e "${BOLD_TEXT}==================================================${RESET_TEXT}"
   for ENV in "${ENVS[@]}"; do
     echo
-    vault_path="$VAULT_MOUNT/$PROJECT/$ENV/$APP"
+    vault_path="$PROJECT/$ENV/$APP"
     env_path="apps/$APP/.env.$ENV"
     if [ "$ENV" == $APPLICANTS_ENV_NAME ]; then
       env_path="apps/$APP/.env"

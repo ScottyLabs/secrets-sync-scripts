@@ -81,10 +81,4 @@ parse_args() {
     usage >&2
     exit 1
   fi
-
-  # Append the VAULT_MOUNT to the VAULT_PATH for the full vault path when pulling.
-  # When pushing, the VAULT_MOUNT is specified in another argument.
-  if [ "$action" == "pull" ]; then
-    VAULT_PATH="$VAULT_MOUNT/$VAULT_PATH"
-  fi
 }

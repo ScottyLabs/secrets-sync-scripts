@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
-# Load common variables and functions
-source $(dirname "$0")/common.sh
+# Load the parser
+source "$(dirname "$0")/parser.sh"
 
 # Parse arguments
 parse_args "$@"
