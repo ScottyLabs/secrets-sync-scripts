@@ -3,43 +3,36 @@
 This directory contains scripts that are used to manage the project's secrets
 using [Vault](https://github.com/ScottyLabs/wiki/wiki/Credentials#hashicorp-vault).
 
-## Usage
+## Quick Start
 
-### `common.sh`
-
-This script contains the common variables and functions used by the other scripts,
-including the argument parsing and validation logic.
-
-### `setup.sh`
-
-Log into the Vault using the OIDC method. You have to run this script
-before pulling or pushing secrets, or you will get permission denied errors.
-Copy the link from the terminal and paste it in your browser if the link doesn't
-automatically open.
+Log into the Vault by running the following command.  Copy the link from the terminal
+and paste it in your browser if the link doesn't automatically open.
 
 ```zsh
 ./setup.sh
 ```
 
-### `pull.sh`
-
-Pulls the secrets from the Vault and saves them to the corresponding `.env` file.
-Run the following command to see the usage:
+Run the following commands to pull and push secrets by specifying a local environment
+file and a Vault path in ScottyLabs Vault.
 
 ```zsh
-./pull.sh -h
+./single/pull.sh
+./single/push.sh
 ```
 
-### `push.sh`
+## Advanced Usage
 
-Pushes the secrets to the Vault from the corresponding `.env` file.
-Run the following command to see the usage:
+It is tedious to pull/push secrets for each application and environment in a large
+project. To simplify this process, we have created the `multi` directory which
+contains scripts that are used to manage the project's secrets for multiple
+applications and environments.
 
 ```zsh
-./push.sh -h
+./multi/pull.sh
+./multi/push.sh
 ```
 
-## Configuration Variables
+### Configuration Variables
 
 The PROJECT (required) is the team slug you defined in
 [Governance](https://github.com/ScottyLabs/governance/tree/main/teams).
@@ -50,7 +43,7 @@ application is a directory in the `apps` directory.
 The ENVS (optional) is a space-separated string of valid environments.
 Each environment will create a `.env.$ENV` file in the root directory.
 
-## Syncing Behavior
+### Syncing Behavior
 
 When there is at least one application and one environment, the scripts
 sync local secrets from `apps/$APP/.env.$ENV` to the vault path
