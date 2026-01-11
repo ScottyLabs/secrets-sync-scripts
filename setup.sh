@@ -1,2 +1,4 @@
 #!/usr/bin/env bash
-VAULT_ADDR=https://secrets.scottylabs.org vault login -method=oidc
+set -e
+source "$(dirname "$0")/common/constants.sh" # load VAULT_ADDR variable
+vault login -method=oidc
