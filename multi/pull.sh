@@ -8,7 +8,7 @@ source "$(dirname "$0")/parser.sh"
 parse_args "$@"
 
 # Load the pull function
-source "$(dirname "$0")/../common/pull-util.sh"
+source "$(dirname "$0")/../shared/pull-util.sh"
 
 # Run the pull
 source "$(dirname "$0")/run.sh"

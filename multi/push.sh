@@ -8,7 +8,7 @@ source "$(dirname "$0")/parser.sh"
 parse_args "$@"
 
 # Load the push function
-source "$(dirname "$0")/../common/push-util.sh"
+source "$(dirname "$0")/../shared/push-util.sh"
 
 # Run the push
 source "$(dirname "$0")/run.sh"

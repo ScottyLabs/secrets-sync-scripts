@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
-# Load common variables
-source "$(dirname "$0")/../common/constants.sh"
+# Load shared variables
+source "$(dirname "$0")/../shared/constants.sh"
 
 # Usage message
 usage() {
